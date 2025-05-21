@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<style>
+    body {
+    font-family: 'Quicksand', sans-serif; /* Fuente suave y moderna */
+    background: linear-gradient(to right, #fbc2eb, #a6c1ee); /* Degradado rosa y azul claro */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow: hidden; /* Para evitar barras de desplazamiento si algo se sale */
+    color: #333;
+}
+
+.game-container {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 400px;
+    width: 90%; /* Responsivo para móviles */
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+h1 {
+    font-family: 'Pacifico', cursive; /* Fuente cursiva para el título */
+    color: #e91e63; /* Rosa vibrante */
+    margin-bottom: 20px;
+    font-size: 2.5em; /* Tamaño grande */
+}
+
+.instructions {
+    font-size: 1.1em;
+    margin-bottom: 25px;
+    line-height: 1.5;
+}
+
+#guessInput {
+    width: calc(100% - 20px); /* Ajusta el ancho y padding */
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 1.2em;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+#guessInput:focus {
+    border-color: #e91e63;
+    outline: none;
+}
+
+#checkButton {
+    background-color: #e91e63; /* Rosa del botón */
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(233, 30, 99, 0.4);
+}
+
+#checkButton:hover {
+    background-color: #d81b60; /* Rosa más oscuro al pasar el ratón */
+    transform: translateY(-2px);
+}
+
+#checkButton:active {
+    transform: translateY(0);
+}
+
+.message {
+    margin-top: 20px;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #333;
+    min-height: 25px; /* Para mantener el espacio */
+}
+
+.attempts {
+    margin-top: 15px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* Animación para el contenedor del juego */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Estilos del Modal (pop-up) */
+.modal {
+    display: none; /* Oculto por defecto */
+    position: fixed; /* Posición fija para cubrir toda la pantalla */
+    z-index: 1000; /* Por encima de todo lo demás */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto; /* Permite desplazamiento si el contenido es muy largo */
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semi-transparente */
+    justify-content: center;
+    align-items: center;
+    animation: modalFadeIn 0.5s;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    margin: 15% auto; /* Centrado vertical y horizontal */
+    padding: 40px;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    position: relative;
+    text-align: center;
+    animation: modalPopUp 0.5s ease-out;
+}
+
+.modal-title {
+    font-family: 'Pacifico', cursive;
+    color: #e91e63;
+    font-size: 3em; /* Más grande para el título del modal */
+    margin-bottom: 25px;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+.love-message {
+    font-size: 1.2em;
+    line-height: 1.8;
+    color: #555;
+    white-space: pre-wrap; /* Mantiene saltos de línea */
+    text-align: justify; /* Justifica el texto */
+    margin-bottom: 30px;
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 3em;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: #e91e63;
+    text-decoration: none;
+}
+
+.close-button-bottom {
+    background-color: #e91e63;
+    color: white;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 4px 10px rgba(233, 30, 99, 0.4);
+}
+
+.close-button-bottom:hover {
+    background-color: #d81b60;
+}
+
+/* Animaciones del modal */
+@keyframes modalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modalPopUp {
+    from { transform: scale(0.8); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Media Queries para ajustar el tamaño del texto en pantallas más pequeñas (modal) */
+@media (max-width: 768px) {
+    .modal-content {
+        padding: 25px;
+    }
+    .modal-title {
+        font-size: 2em;
+    }
+    .love-message {
+        font-size: 1em;
+    }
+    .close-button {
+        font-size: 2.5em;
+    }
+    .close-button-bottom {
+        font-size: 1em;
+        padding: 10px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 20px;
+        margin: 10% auto;
+    }
+    .modal-title {
+        font-size: 1.7em;
+    }
+    .love-message {
+        font-size: 0.9em;
+    }
+    .close-button {
+        font-size: 2em;
+        top: 5px;
+        right: 10px;
+    }
+    .close-button-bottom {
+        font-size: 0.9em;
+        padding: 8px 15px;
+    }
+}
+</style>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¡Un Juego para Ti, Mi Amor! ❤️</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <h1>¡Hola, mi hermosa Yssa! 😍</h1>
+        <p class="instructions">Tengo un pequeño juego para ti. <br>Adivina el número secreto entre 1 y 10. ¡Tienes 3 intentos!</p>
+        <input type="number" id="guessInput" min="1" max="10" placeholder="Escribe tu número">
+        <button id="checkButton">¡Adivinar!</button>
+        <p id="message" class="message"></p>
+        <p id="attempts" class="attempts">Intentos restantes: 3</p>
+    </div>
+
+    <div id="winModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 class="modal-title">¡¡FELICIDADES, MI AMOR!! 🎉</h2>
+            <p class="love-message">
+                Mi hermosa Yssa,<br><br>
+                ¡Lo lograste! Así como eres la persona más brillante y especial en mi vida, siempre encuentras la forma de sorprenderme. Este pequeño juego es solo una excusa para decirte lo mucho que te amo. Eres la luz de mis ojos, la razón de mis sonrisas y la mujer más increíble que he conocido.<br><br>
+                Cada día a tu lado es una aventura, un sueño hecho realidad. Estoy increíblemente feliz, agradecido y orgulloso de tenerte como mi novia. Tu belleza, tanto por dentro como por fuera, ilumina mi mundo.<br><br>
+                Gracias por ser tú, por tu amor, por tu paciencia y por hacer de cada momento algo mágico. Eres perfecta para mí.<br><br>
+                Con todo mi amor, siempre tuyo.<br>
+                ❤️❤️❤️
+            </p>
+            <button class="close-button-bottom">Cerrar</button>
+        </div>
+    </div>
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const guessInput = document.getElementById('guessInput');
+    const checkButton = document.getElementById('checkButton');
+    const messageDisplay = document.getElementById('message');
+    const attemptsDisplay = document.getElementById('attempts');
+    const winModal = document.getElementById('winModal');
+    const closeButtons = document.querySelectorAll('.close-button, .close-button-bottom'); // Seleccionar ambos botones de cierre
+
+    let secretNumber = Math.floor(Math.random() * 10) + 1; // Número entre 1 y 10
+    let attempts = 3;
+
+    function resetGame() {
+        secretNumber = Math.floor(Math.random() * 10) + 1;
+        attempts = 3;
+        attemptsDisplay.textContent = `Intentos restantes: ${attempts}`;
+        messageDisplay.textContent = '';
+        guessInput.value = '';
+        checkButton.disabled = false; // Habilitar el botón
+        guessInput.disabled = false; // Habilitar el input
+        guessInput.focus(); // Poner el foco en el input
+    }
+
+    function checkGuess() {
+        const guess = parseInt(guessInput.value);
+
+        if (isNaN(guess) || guess < 1 || guess > 10) {
+            messageDisplay.textContent = 'Por favor, introduce un número válido entre 1 y 10.';
+            messageDisplay.style.color = '#e74c3c'; // Rojo para error
+            return;
+        }
+
+        attempts--;
+        attemptsDisplay.textContent = `Intentos restantes: ${attempts}`;
+
+        if (guess === secretNumber) {
+            messageDisplay.textContent = '¡Felicidades! ¡Adivinaste el número!';
+            messageDisplay.style.color = '#27ae60'; // Verde para éxito
+            checkButton.disabled = true; // Deshabilitar el botón
+            guessInput.disabled = true; // Deshabilitar el input
+            openModal(); // Abrir el mensaje especial
+        } else if (attempts === 0) {
+            messageDisplay.textContent = `¡Oh no! Te quedaste sin intentos. El número era ${secretNumber}. ¡Pero no te preocupes, siempre te quiero!`;
+            messageDisplay.style.color = '#e74c3c'; // Rojo para fallar
+            checkButton.disabled = true; // Deshabilitar el botón
+            guessInput.disabled = true; // Deshabilitar el input
+            setTimeout(resetGame, 4000); // Reiniciar el juego después de 4 segundos
+        } else if (guess < secretNumber) {
+            messageDisplay.textContent = 'Demasiado bajo. ¡Intenta de nuevo!';
+            messageDisplay.style.color = '#f39c12'; // Naranja para pista
+        } else {
+            messageDisplay.textContent = 'Demasiado alto. ¡Intenta de nuevo!';
+            messageDisplay.style.color = '#f39c12'; // Naranja para pista
+        }
+        guessInput.value = ''; // Limpiar el input después de cada intento
+        guessInput.focus(); // Volver a poner el foco en el input
+    }
+
+    function openModal() {
+        winModal.style.display = 'flex'; // Usar flex para centrar el contenido
+    }
+
+    function closeModal() {
+        winModal.style.display = 'none';
+        resetGame(); // Reiniciar el juego cada vez que se cierra el modal de victoria
+    }
+
+    // Event listeners
+    checkButton.addEventListener('click', checkGuess);
+
+    // Permitir adivinar también con la tecla Enter en el input
+    guessInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            checkButton.click(); // Simula un clic en el botón
+        }
+    });
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', closeModal);
+    });
+
+    // Cerrar el modal si se hace clic fuera del contenido del modal
+    window.addEventListener('click', (event) => {
+        if (event.target === winModal) {
+            closeModal();
+        }
+    });
+
+    // Inicializar el juego al cargar la página
+    resetGame();
+});
+    </script>
+</body>
+</html>
